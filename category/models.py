@@ -4,14 +4,9 @@ from django.utils.text import slugify
 
 class Category(models.Model):
     category_name = models.CharField(max_length=32)
+    slug = models.SlugField(max_length=64, unique=True)
     description = models.TextField(max_length=256, blank=True)
-    slug = models.SlugField()
     category_image = models.ImageField(upload_to='images/category', blank=True)
-
-    def save(self, *args, **kwargs):
-        category = self.save(*args, **kwargs)
-        category.slug = slugify(self.slug)
-        return category
 
     class Meta:
         verbose_name = 'category'
