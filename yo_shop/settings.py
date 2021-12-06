@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
+    'category'
 ]
 
 MIDDLEWARE = [
@@ -69,14 +71,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'yo_shop.wsgi.application'
 
+# Tell django that we are using custom user model
+AUTH_USER_MODEL = 'accounts.Account'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yo_shop_db',
+        'HOST': 'localhost',
+        'USER': 'yo_shop_user',
+        'PASSWORD': 'yo_shop123456'
     }
 }
 
@@ -125,3 +132,7 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
