@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from store.models import Product
 from category.models import Category
 
 
 def store(request, slug=None):
+    category = get_object_or_404(Category, slug=slug)
     products = Product.objects.all().filter(is_available=True)
     if slug:
         products = Product.objects.all().filter(is_available=True, category__slug=slug)
@@ -12,6 +13,7 @@ def store(request, slug=None):
     context = {
         'products': products,
         'count': products_count,
-        'categories': categories
+        'categories': categories,
+        'selected_category': category
     }
     return render(request, 'store/store.html', context)

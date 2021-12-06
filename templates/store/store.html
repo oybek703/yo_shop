@@ -30,7 +30,13 @@
 				<ul class="list-menu">
                     {% for category in categories %}
                         <li><a href="{% url 'products_by_category' category.slug %}">
-                            {{ category.name }}
+                            {% if selected_category.id == category.id %}
+                                <span class="text-primary font-weight-bold">
+                                    {{ category.name }}
+                                </span>
+                             {% else %}
+                                {{ category.name }}
+                              {% endif %}
                         </a></li>
                     {% endfor %}
 				</ul>
