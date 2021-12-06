@@ -27,19 +27,7 @@
 		</header>
 		<div class="filter-content collapse show" id="collapse_1" style="">
 			<div class="card-body">
-				<ul class="list-menu">
-                    {% for category in categories %}
-                        <li><a href="{% url 'products_by_category' category.slug %}">
-                            {% if selected_category.id == category.id %}
-                                <span class="text-primary font-weight-bold">
-                                    {{ category.name }}
-                                </span>
-                             {% else %}
-                                {{ category.name }}
-                              {% endif %}
-                        </a></li>
-                    {% endfor %}
-				</ul>
+				{% include 'includes/_categories.html' %}
 			</div> <!-- card-body.// -->
 		</div>
 	</article> <!-- filter-group  .// -->

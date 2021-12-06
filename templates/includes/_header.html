@@ -34,11 +34,26 @@
 	<div class="col-lg col-sm col-md col-6 flex-grow-0">
 		<div class="category-wrap dropdown d-inline-block float-right">
 			<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-				<i class="fa fa-bars"></i> All categories
+				<i class="fa fa-bars"></i> {% if selected_category.name %}
+                    {{ selected_category.name }}
+				 {% else %}
+                        All Categories
+				  {% endif %}
 			</button>
 			<div class="dropdown-menu">
+                <li>
+                    <a href="{% url 'store' %}" class="dropdown-item">
+                        {% if request.path == '/store/' %}
+                            <span class="text-primary font-weight-bold">
+                                All categories
+                            </span>
+                        {% else %}
+                            All categories
+                        {% endif %}
+                    </a>
+                </li>
                 {% for category in categories %}
-                    <a class="dropdown-item" href="{% url 'products_by_category' category.slug %}">
+                    <a class="dropdown-item" href="{{ category.get_url }}">
                         {% if selected_category.id == category.id %}
                             <span class="text-primary font-weight-bold">
                                 {{ category.name }}
