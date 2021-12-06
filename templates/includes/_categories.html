@@ -1,26 +1,26 @@
 <ul class="list-menu">
-                        <li>
-                            <a href="{% url 'store' %}">
-                                {% if request.path == '/store/' %}
-                                    <span class="text-primary font-weight-bold">
-                                        All categories
-                                    </span>
-                                {% else %}
-                                    All categories
-                                {% endif %}
-                            </a>
-                        </li>
-                    {% for category in categories %}
-                        <li>
-                            <a href="{{ category.get_url }}">
-                                {% if selected_category.id == category.id %}
-                                    <span class="text-primary font-weight-bold">
-                                        {{ category.name }}
-                                    </span>
-                                 {% else %}
-                                    {{ category.name }}
-                                 {% endif %}
-                            </a>
-                        </li>
-                    {% endfor %}
-				</ul>
+    <li>
+            <a href="{% url 'store' %}">
+                {% if request.path == '/store/' %}
+                    <span class="text-primary font-weight-bold">
+                        All categories
+                    </span>
+                {% else %}
+                    All categories
+                {% endif %}
+            </a>
+        </li>
+    {% for category in categories %}
+        <li>
+            <a href="{{ category.get_url }}">
+                {% if selected_category.id == category.id %}
+                    <span class="text-primary font-weight-bold">
+                        {{ category.name }}
+                    </span>
+                 {% else %}
+                    {{ category.name }}
+                 {% endif %}
+            </a>
+        </li>
+    {% endfor %}
+</ul>

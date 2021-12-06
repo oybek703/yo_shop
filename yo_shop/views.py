@@ -2,10 +2,8 @@ from django.shortcuts import render
 from store.models import Product
 
 
-def index(request, slug=None):
+def home(request):
     products = Product.objects.all().filter(is_available=True)
-    if slug:
-        print(slug)
     context = {
         'products': products
     }
