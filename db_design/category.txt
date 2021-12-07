@@ -1,0 +1,5 @@
+Category
+ - category_name
+ - slug
+ - description
+ - category_image
