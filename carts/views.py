@@ -19,10 +19,10 @@ def add_to_cart(request, product_id):
         for key in request.POST:
             value = request.POST[key]
             try:
-                variation = Variation.objects.filter(product=product, category__iexact=key, value__iexact=value)
+                variation = Variation.objects.get(product=product, category__iexact=key, value__iexact=value)
                 product_variations.append(variation)
             except Variation.DoesNotExist:
-                raise Http404()
+                pass
     try:
         cart = Cart.objects.get(cart_id=get_cart_id(request))  # get cart
     except Cart.DoesNotExist:
@@ -31,10 +31,12 @@ def add_to_cart(request, product_id):
     try:
         cart_item = CartItem.objects.get(product=product, cart=cart)
         cart_item.quantity += 1  # increment quantity
-        cart_item.save()
     except CartItem.DoesNotExist:
         cart_item = CartItem.objects.create(product=product, cart=cart, quantity=1)
-        cart_item.save()
+    if len(product_variations) > 0:
+        for variation in product_variations:
+            cart_item.variations.add(variation)
+    cart_item.save()
     redirect_path = reverse('cart')
     return HttpResponseRedirect(redirect_path)
 
