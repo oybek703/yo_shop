@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
-from store.models import Product
+from store.models import Product, Variation
 from .models import Cart, CartItem
 
 
@@ -14,6 +14,15 @@ def get_cart_id(request):
 
 def add_to_cart(request, product_id):
     product = Product.objects.get(pk=product_id)  # get product
+    product_variations = []
+    if request.method == 'POST':
+        for key in request.POST:
+            value = request.POST[key]
+            try:
+                variation = Variation.objects.filter(product=product, category__iexact=key, value__iexact=value)
+                product_variations.append(variation)
+            except Variation.DoesNotExist:
+                raise Http404()
     try:
         cart = Cart.objects.get(cart_id=get_cart_id(request))  # get cart
     except Cart.DoesNotExist:
@@ -47,6 +56,8 @@ def remove_from_cart(request, product_id):
 
 
 def cart_page(request, total=0, quantity=0, cart_items=None):
+    tax = 0
+    total_with_tax = 0
     try:
         cart = Cart.objects.get(cart_id=get_cart_id(request))
         cart_items = CartItem.objects.filter(cart=cart, is_active=True)
