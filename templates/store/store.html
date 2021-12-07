@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
+{% load pagination_tags %}
 {% load static %}
 {% block content %}
     <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
 <div class="container">
-	<h2 class="title-page">Store</h2>
+    {% if 'search' in request.GET %}
+        <h2 class="title-page">Search Result</h2>
+     {% else %}
+        <h2 class="title-page">Store</h2>
+      {% endif %}
 
 </div> <!-- container //  -->
 </section>
@@ -12,7 +17,7 @@
 
 <!-- ========================= SECTION CONTENT ========================= -->
 <section class="section-content padding-y">
-<div class="container">
+    <div class="container">
 
 <div class="row">
 	<aside class="col-md-3">
@@ -114,10 +119,13 @@
 		<div class="form-inline">
 			<span class="mr-md-auto">{{ count }} item{% if count > 1 %}s{% endif %} found </span>
 		</div>
-</header><!-- sect-heading -->
+    </header><!-- sect-heading -->
 
     <div class="row">
-    {% for product in products %}
+        {% if not products %}
+        <h2 class="text-black-50 font-italic p-2">No results found.</h2>
+     {% else %}
+        {% for product in products %}
         <div class="col-md-4">
 		    <figure class="card card-product-grid">
 			<div class="img-wrap">
@@ -141,24 +149,25 @@
 		</figure>
         </div> <!-- col.// -->
     {% endfor %}
-</div> <!-- row end.// -->
+    {% endif %}
+    </div> <!-- row end.// -->
 
     {% if products.has_other_pages %}
     <nav class="mt-4" aria-label="Page navigation sample">
       <ul class="pagination">
         {% if products.has_previous %}
           <li class="page-item">
-              <a class="page-link" href="?page{{ products.previous_page_number }}">&laquo;</a>
+              <a class="page-link" href="?{% url_replace request 'page' products.previous_page_number %}">&laquo;</a>
           </li>
         {% endif %}
         {% for i in products.paginator.page_range %}
             <li class="page-item {% if products.number == i %}active{% endif %}">
-                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                <a class="page-link" href="?{% url_replace request 'page' i %}">{{ i }}</a>
             </li>
          {% endfor %}
         {% if products.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ products.next_page_number }}">&raquo;</a>
+                <a class="page-link" href="?{% url_replace request 'page' products.next_page_number %}">&raquo;</a>
             </li>
         {% endif %}
       </ul>

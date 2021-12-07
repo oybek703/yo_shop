@@ -4,6 +4,19 @@ from store.models import Product
 from category.models import Category
 from carts.models import CartItem, Cart
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
+
+
+def get_with_pagination(request, products, num_pages=3):
+    page = request.GET.get('page', 1)
+    paginator = Paginator(products, num_pages)
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
+    return products
 
 
 def store(request, category_slug=None):
@@ -13,18 +26,26 @@ def store(request, category_slug=None):
         category = get_object_or_404(Category, slug=category_slug)
         products = Product.objects.all().filter(is_available=True, category__slug=category_slug)
     products_count = products.count()
-    page = request.GET.get('page', 1)
-    paginator = Paginator(products, 3)
-    try:
-        products = paginator.page(page)
-    except PageNotAnInteger:
-        products = paginator.page(1)
-    except EmptyPage:
-        products = paginator.page(paginator.num_pages)
+    products = get_with_pagination(request, products, 4)
     context = {
         'products': products,
         'count': products_count,
         'selected_category': category
+    }
+    return render(request, 'store/store.html', context)
+
+
+def search(request):
+    count = 0
+    products = Product.objects.filter(is_available=True).order_by('-created_date')
+    keyword = request.GET.get('keyword')
+    if keyword:
+        products = products.filter(Q(description__icontains=keyword) | Q(name__icontains=keyword))
+        count = products.count()
+        products = get_with_pagination(request, products)
+    context = {
+        'products': products,
+        'count': count
     }
     return render(request, 'store/store.html', context)
 
