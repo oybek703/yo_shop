@@ -26,7 +26,7 @@ def store(request, category_slug=None):
         category = get_object_or_404(Category, slug=category_slug)
         products = Product.objects.all().filter(is_available=True, category__slug=category_slug)
     products_count = products.count()
-    products = get_with_pagination(request, products, 4)
+    products = get_with_pagination(request, products)
     context = {
         'products': products,
         'count': products_count,
