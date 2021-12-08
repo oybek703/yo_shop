@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.urls import reverse
 from store.models import Product, Variation
 from .models import Cart, CartItem
@@ -32,16 +32,38 @@ def add_to_cart(request, product_id):
     except Cart.DoesNotExist:
         cart = Cart.objects.create(cart_id=get_cart_id(request))
     cart.save()
-    try:
-        cart_item = CartItem.objects.get(product=product, cart=cart)
-        cart_item.quantity += 1  # increment quantity
-    except CartItem.DoesNotExist:
+    cart_item_exists = CartItem.objects.filter(product=product, cart=cart)
+    if cart_item_exists:
+        cart_items = CartItem.objects.filter(product=product, cart=cart)
+        # existing variations => database
+        # current variation => product_variations
+        # item_id => database
+        existing_variations = []
+        ids = []
+        for cart_item in cart_items:
+            item_variations = cart_item.variations.all()
+            existing_variations.append(list(item_variations))
+            ids.append(cart_item.id)
+        if product_variations in existing_variations:
+            # increment quantity to 1
+            index = existing_variations.index(product_variations)
+            cart_id = ids[index]
+            cart_item = CartItem.objects.get(product=product, id=cart_id)
+            cart_item.quantity += 1
+            cart_item.save()
+        else:
+            cart_item = CartItem.objects.create(product=product, cart=cart, quantity=1)
+            if len(product_variations) > 0:
+                cart_item.variations.clear()
+                cart_item.variations.add(*product_variations)
+            cart_item.save()
+    else:
+        # create new cart_item
         cart_item = CartItem.objects.create(product=product, cart=cart, quantity=1)
-    if len(product_variations) > 0:
-        cart_item.variations.clear()
-        for variation in product_variations:
-            cart_item.variations.add(variation)
-    cart_item.save()
+        if len(product_variations) > 0:
+            cart_item.variations.clear()
+            cart_item.variations.add(*product_variations)
+        cart_item.save()
     redirect_path = reverse('cart')
     return HttpResponseRedirect(redirect_path)
 
