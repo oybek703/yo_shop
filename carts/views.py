@@ -19,7 +19,11 @@ def add_to_cart(request, product_id):
         for key in request.POST:
             value = request.POST[key]
             try:
-                variation = Variation.objects.get(product=product, category__iexact=key, value__iexact=value)
+                variation = Variation.objects.get(
+                    product=product,
+                    category__iexact=key,
+                    value__iexact=value
+                )
                 product_variations.append(variation)
             except Variation.DoesNotExist:
                 pass
@@ -34,6 +38,7 @@ def add_to_cart(request, product_id):
     except CartItem.DoesNotExist:
         cart_item = CartItem.objects.create(product=product, cart=cart, quantity=1)
     if len(product_variations) > 0:
+        cart_item.variations.clear()
         for variation in product_variations:
             cart_item.variations.add(variation)
     cart_item.save()
@@ -64,9 +69,9 @@ def cart_page(request, total=0, quantity=0, cart_items=None):
         cart = Cart.objects.get(cart_id=get_cart_id(request))
         cart_items = CartItem.objects.filter(cart=cart, is_active=True)
         for cart_item in cart_items:
-            total += (cart_item.product.price*cart_item.quantity)
+            total += (cart_item.product.price * cart_item.quantity)
             quantity += cart_item.quantity
-        tax = 0.02*total
+        tax = 0.02 * total
         total_with_tax = total + tax
     except Cart.DoesNotExist or CartItem.DoesNotExist:
         pass
