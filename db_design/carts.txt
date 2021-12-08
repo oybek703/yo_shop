@@ -1,0 +1,9 @@
+Cart
+ - cart_id
+ - date_added
+
+CartItem
+ - product
+ - cart
+ - quantity
+ - is_active

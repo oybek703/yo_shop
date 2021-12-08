@@ -1,0 +1,6 @@
+Variation
+ - product
+ - category
+ - value
+ - is_active
+ - created_date
