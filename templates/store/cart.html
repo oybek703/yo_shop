@@ -42,7 +42,7 @@
                                             <div class="col">
                                                 <div class="input-group input-spinner">
                                                     <div class="input-group-prepend">
-                                                        <a href="{% url 'remove_from_cart' cart_item.product.id %}"
+                                                        <a href="{% url 'remove_from_cart' cart_item.product.id cart_item.id %}"
                                                            class="btn btn-light"
                                                            type="button" id="button-plus">
                                                             <i class="fa fa-minus"></i>
@@ -74,7 +74,7 @@
                                             </div> <!-- price-wrap .// -->
                                         </td>
                                         <td class="text-right">
-                                            <form action="{% url 'remove_from_cart' cart_item.product.id %}"
+                                            <form action="{% url 'remove_from_cart' cart_item.product.id cart_item.id %}"
                                                   method="post">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="product_id"

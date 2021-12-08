@@ -68,9 +68,9 @@ def add_to_cart(request, product_id):
     return HttpResponseRedirect(redirect_path)
 
 
-def remove_from_cart(request, product_id):
+def remove_from_cart(request, product_id, cart_id):
     if request.method == 'GET':
-        cart_item = CartItem.objects.get(product=product_id)
+        cart_item = CartItem.objects.get(product=product_id, id=cart_id)
         if cart_item.quantity > 1:
             cart_item.quantity -= 1
             cart_item.save()
@@ -78,7 +78,7 @@ def remove_from_cart(request, product_id):
             cart_item.delete()
     else:
         product_id = request.POST['product_id']
-        cart_item = CartItem.objects.get(product=product_id)
+        cart_item = CartItem.objects.get(product=product_id, id=cart_id)
         cart_item.delete()
     redirect_path = reverse('cart')
     return HttpResponseRedirect(redirect_path)
