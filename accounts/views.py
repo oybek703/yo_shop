@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail, EmailMessage
@@ -58,12 +59,12 @@ def login(request):
             return redirect('login')
         else:
             auth.login(request, user)
-            # implement dashboard then
-            # messages.success('You are logged in successfully.')
-            return redirect('home')
+            messages.success(request, 'You are logged in successfully.')
+            return redirect('dashboard')
     return render(request, 'accounts/login.html')
 
 
+@login_required(login_url='login')
 def logout(request):
     auth.logout(request)
     messages.success(request, 'You are logged out.')
@@ -84,3 +85,8 @@ def activate(request, uidb64, token):
     else:
         messages.error(request, 'Invalid activation link.')
         return redirect('register')
+
+
+@login_required(login_url='login')
+def dashboard(request):
+    return render(request, 'accounts/dashboard.html')
