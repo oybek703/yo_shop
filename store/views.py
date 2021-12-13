@@ -59,4 +59,4 @@ def product_details(request, category_slug, product_slug):
         'product': product,
         'in_cart': in_cart
     }
-    return render(request, 'store/product-details.html', context)
+    return render(request, 'store/product_details.html', context)
