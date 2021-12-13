@@ -1,5 +1,6 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from store.models import Product, Variation
 from .models import Cart, CartItem
@@ -32,7 +33,7 @@ def add_to_cart(request, product_id):
     except Cart.DoesNotExist:
         cart = Cart.objects.create(cart_id=get_cart_id(request))
     cart.save()
-    cart_item_exists = CartItem.objects.filter(product=product, cart=cart)
+    cart_item_exists = CartItem.objects.filter(product=product, cart=cart).exists()
     if cart_item_exists:
         cart_items = CartItem.objects.filter(product=product, cart=cart)
         # existing variations => database
@@ -88,8 +89,11 @@ def cart_page(request, total=0, quantity=0, cart_items=None):
     tax = 0
     total_with_tax = 0
     try:
-        cart = Cart.objects.get(cart_id=get_cart_id(request))
-        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+        if request.user.is_authenticated:
+            cart_items = CartItem.objects.filter(user=request.user)
+        else:
+            cart = Cart.objects.get(cart_id=get_cart_id(request))
+            cart_items = CartItem.objects.filter(cart=cart, is_active=True)
         for cart_item in cart_items:
             total += (cart_item.product.price * cart_item.quantity)
             quantity += cart_item.quantity
@@ -107,6 +111,7 @@ def cart_page(request, total=0, quantity=0, cart_items=None):
     return render(request, 'store/cart.html', context)
 
 
+@login_required(login_url='login')
 def checkout(request, total=0, quantity=0, cart_items=None):
     tax = 0
     total_with_tax = 0

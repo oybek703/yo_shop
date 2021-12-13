@@ -5,6 +5,9 @@ from django.core.mail import send_mail, EmailMessage
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
+
+from carts.models import Cart, CartItem
+from carts.views import get_cart_id
 from .forms import RegistrationForm
 from django.contrib import messages, auth
 from .models import Account
@@ -58,6 +61,16 @@ def login(request):
             messages.error(request, 'Invalid user credentials.')
             return redirect('login')
         else:
+            try:
+                cart = Cart.objects.get(cart_id=get_cart_id(request))
+                cart_item_exists = CartItem.objects.filter(cart=cart)
+                if cart_item_exists:
+                    cart_items = CartItem.objects.filter(cart=cart)
+                    for cart_item in cart_items:
+                        cart_item.user = user
+                        cart_item.save()
+            except Cart.DoesNotExist or CartItem.DoesNotExist:
+                pass
             auth.login(request, user)
             messages.success(request, 'You are logged in successfully.')
             return redirect('dashboard')

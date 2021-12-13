@@ -53,10 +53,7 @@ def search(request):
 def product_details(request, category_slug, product_slug):
     category = get_object_or_404(Category, slug=category_slug)
     product = get_object_or_404(Product, slug=product_slug, category=category)
-    cart = Cart.objects.get(cart_id=get_cart_id(request))
-    in_cart = CartItem.objects.filter(product=product, cart=cart).exists()
     context = {
-        'product': product,
-        'in_cart': in_cart
+        'product': product
     }
     return render(request, 'store/product_details.html', context)
