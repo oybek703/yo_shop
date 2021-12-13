@@ -26,23 +26,23 @@
                     {% csrf_token %}
                     <div class="row">
                         <div class="item-option-select col">
-                            <label for="color">Color</label>
-                            <select required id="color" name="color" class="form-control">
-                                <option value="" disabled selected>Choose color</option>
-                                {% for v in product.variations.colors %}
-                                    <option value="{{ v.value|lower }}">{{ v.value|capfirst }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="item-option-select col">
                     <label for="color">Size</label>
                     <select required id="color" name="size" class="form-control">
                         <option value="" disabled selected>Choose size</option>
                         {% for v in product.variations.sizes %}
-                            <option value="{{ v.value|lower }}">{{ v.value|capfirst }}</option>
+                            <option value="{{ v.value|capfirst }}">{{ v.value|capfirst }}</option>
                         {% endfor %}
                     </select>
                 </div>
+                        <div class="item-option-select col">
+                            <label for="color">Color</label>
+                            <select required id="color" name="color" class="form-control">
+                                <option value="" disabled selected>Choose color</option>
+                                {% for v in product.variations.colors %}
+                                    <option value="{{ v.value|capfirst }}">{{ v.value|capfirst }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div> <!-- row.// -->
                     {% if product.stock == 0 %}
                          <h5 class="text-danger">Out of Stock</h5>
