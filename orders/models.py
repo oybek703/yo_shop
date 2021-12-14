@@ -28,7 +28,7 @@ class Order(models.Model):
     last_name = models.CharField(max_length=64)
     phone_number = models.CharField(max_length=16)
     email = models.EmailField(max_length=64)
-    address_line_1 = models.CharField(max_length=16)
+    address_line_1 = models.CharField(max_length=64)
     address_line_2 = models.CharField(max_length=16, blank=True)
     country = models.CharField(max_length=32)
     state = models.CharField(max_length=16)
@@ -41,6 +41,12 @@ class Order(models.Model):
     is_ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
+
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
+
+    def full_address(self):
+        return f'{self.address_line_1} {self.address_line_2}'
 
     def __str__(self):
         return self.first_name

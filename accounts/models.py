@@ -56,7 +56,7 @@ class Account(AbstractBaseUser):
     objects = MyAccountManager()
 
     def __str__(self):
-        return self.username
+        return self.first_name
 
     # Mandatory methods when implemented custom model
     def has_perm(self, perm, obj=None):
