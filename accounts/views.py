@@ -1,17 +1,17 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import EmailMessage
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
-
 from carts.models import Cart, CartItem
 from carts.views import get_cart_id
 from .forms import RegistrationForm
 from django.contrib import messages, auth
 from .models import Account
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+import uuid
 
 
 def register(request):
@@ -24,7 +24,7 @@ def register(request):
             email = registration_from.cleaned_data['email']
             phone_number = registration_from.cleaned_data['phone_number']
             password = registration_from.cleaned_data['password']
-            username = f'{first_name.lower()}__{last_name.lower()}'
+            username = f'{uuid.uuid4()}'
             user = Account.objects.create_user(
                 first_name=first_name,
                 last_name=last_name,
@@ -63,12 +63,30 @@ def login(request):
         else:
             try:
                 cart = Cart.objects.get(cart_id=get_cart_id(request))
-                cart_item_exists = CartItem.objects.filter(cart=cart)
-                if cart_item_exists:
-                    cart_items = CartItem.objects.filter(cart=cart)
-                    for cart_item in cart_items:
-                        cart_item.user = user
-                        cart_item.save()
+                cart_items = CartItem.objects.filter(cart=cart)
+                product_variations = []
+                for cart_item in cart_items:
+                    cart_item_variations = cart_item.variations.all()
+                    product_variations.append(list(cart_item_variations))
+                existing_variations = []
+                ids = []
+                user_cart_items = CartItem.objects.filter(user=user)
+                for user_cart_item in user_cart_items:
+                    user_cart_item_variations = user_cart_item.variations.all()
+                    existing_variations.append(list(user_cart_item_variations))
+                    ids.append(user_cart_item.id)
+                for product_variation in product_variations:
+                    if product_variation in existing_variations:
+                        cart_variation_index = existing_variations.index(product_variation)
+                        cart_item_id = ids[cart_variation_index]
+                        user_cart_item = CartItem.objects.get(id=cart_item_id)
+                        user_cart_item.quantity += 1
+                        user_cart_item.save()
+                    else:
+                        cart_items = CartItem.objects.filter(cart=cart)
+                        for cart_item in cart_items:
+                            cart_item.user = user
+                            cart_item.save()
             except Cart.DoesNotExist or CartItem.DoesNotExist:
                 pass
             auth.login(request, user)
