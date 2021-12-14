@@ -91,6 +91,11 @@ def login(request):
                 pass
             auth.login(request, user)
             messages.success(request, 'You are logged in successfully.')
+            try:
+                redirect_path = request.META.get('HTTP_REFERER').split('next=')[1]
+                return redirect(redirect_path)
+            except IndexError:
+                pass
             return redirect('dashboard')
     return render(request, 'accounts/login.html')
 
