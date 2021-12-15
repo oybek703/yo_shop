@@ -155,9 +155,10 @@
         const url =
         '{% url 'payments' %}'
         const csrfToken = getCookie('csrftoken')
-        const orderId =
+        const orderNumber =
         '{{ order.order_number }}'
         const payment_method = 'Paypal'
+        const redirect_url = '{% url 'order_complete' %}'
         // Render the PayPal button into #paypal-button-container
         paypal.Buttons({
 
@@ -189,7 +190,7 @@
                                 'X-CSRFToken': csrfToken
                             },
                             body: JSON.stringify({
-                                order_id: orderId,
+                                order_number: orderNumber,
                                 transaction_id: orderData.id,
                                 payment_method: payment_method,
                                 status: orderData.status
@@ -197,7 +198,7 @@
                         },
                     ).then(res => res.json())
                         .then(data => {
-                            console.log(data)
+                            window.location.href = `${redirect_url}?transaction-id=${data['transId']}&order-number=${data['orderNumber']}`
                         })
                 })
             }

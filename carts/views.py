@@ -132,7 +132,7 @@ def cart_page(request, total=0, quantity=0, cart_items=None):
         for cart_item in cart_items:
             total += (cart_item.product.price * cart_item.quantity)
             quantity += cart_item.quantity
-        tax = 0.02 * total
+        tax = round(0.02 * total, 2)
         total_with_tax = total + tax
     except Cart.DoesNotExist or CartItem.DoesNotExist:
         pass

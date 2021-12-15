@@ -4,6 +4,7 @@ from store.models import Product, Variation
 
 
 class Payment(models.Model):
+    payment_id = models.CharField(max_length=128)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     payment_method = models.CharField(max_length=256)
     paid_amount = models.CharField(max_length=128)
@@ -11,7 +12,7 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 
 class Order(models.Model):
@@ -63,6 +64,9 @@ class OrderProduct(models.Model):
     ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def total_cost(self):
+        return round(self.product_price * self.product_quantity, 2)
 
     def __str__(self):
         return self.product.name
