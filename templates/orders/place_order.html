@@ -134,46 +134,76 @@
     </script>
 
     <script>
-    const amount = {{ total_with_tax }}
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const amount =
+        '{{ total_with_tax }}'
+        const url =
+        '{% url 'payments' %}'
+        const csrfToken = getCookie('csrftoken')
+        const orderId =
+        '{{ order.order_number }}'
+        const payment_method = 'Paypal'
         // Render the PayPal button into #paypal-button-container
         paypal.Buttons({
 
             style: {
-                color:  'blue',
-                shape:  'rect',
-                label:  'pay',
+                color: 'blue',
+                shape: 'rect',
+                label: 'pay',
                 height: 40
             },
 
             // Set up the transaction
-            createOrder: function(data, actions) {
+            createOrder: function (data, actions) {
                 return actions.order.create({
                     purchase_units: [{
                         amount: {
                             value: amount
                         }
                     }]
-                });
+                })
             },
 
             // Finalize the transaction
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(orderData) {
-                    // Successful capture! For demo purposes:
-                    console.log(orderData)
-                    const transaction = orderData.purchase_units[0].payments.captures[0];
-                    alert('Transaction '+ transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
-
-                    // Replace the above to show a success message within this page, e.g.
-                    // const element = document.getElementById('paypal-button-container');
-                    // element.innerHTML = '';
-                    // element.innerHTML = '<h3>Thank you for your payment!</h3>';
-                    // Or go to another URL:  actions.redirect('thank_you.html');
-                });
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (orderData) {
+                    fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken
+                            },
+                            body: JSON.stringify({
+                                order_id: orderId,
+                                transaction_id: orderData.id,
+                                payment_method: payment_method,
+                                status: orderData.status
+                            })
+                        },
+                    ).then(res => res.json())
+                        .then(data => {
+                            console.log(data)
+                        })
+                })
             }
 
 
-        }).render('#paypal-button-container');
+        }).render('#paypal-button-container')
     </script>
 
 {% endblock %}

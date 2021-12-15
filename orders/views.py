@@ -1,8 +1,11 @@
 import datetime
+
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from carts.models import CartItem
 from orders.forms import OrderForm
 from orders.models import Order
+import json
 
 
 def place_order(request):
@@ -61,3 +64,11 @@ def place_order(request):
     else:
         return redirect('checkout')
 
+
+def payments(request):
+    body = json.loads(request.body)
+    print(body)
+    res = {
+        'data2': 'ok too.'
+    }
+    return JsonResponse(res)
