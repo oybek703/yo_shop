@@ -77,8 +77,3 @@ class OrderProduct(models.Model):
 
 
 
-
-
-
-
-

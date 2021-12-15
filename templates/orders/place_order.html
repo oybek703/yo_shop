@@ -196,6 +196,7 @@
                                 status: orderData.status
                             })
                         },
+                        document.body.innerHTML = `<h2 class="text-center mt-5 text-black-50">Please wait redirecting...</h2>`
                     ).then(res => res.json())
                         .then(data => {
                             window.location.href = `${redirect_url}?transaction-id=${data['transId']}&order-number=${data['orderNumber']}`
