@@ -133,6 +133,7 @@ def dashboard(request):
     return render(request, 'accounts/dashboard.html', context)
 
 
+@login_required(login_url='login')
 def my_orders(request):
     user_orders = Order.objects.filter(user=request.user, is_ordered=True)
     context = {
@@ -141,6 +142,7 @@ def my_orders(request):
     return render(request, 'accounts/my_orders.html', context)
 
 
+@login_required(login_url='login')
 def edit_profile(request):
     user_profile = get_object_or_404(UserProfile, user=request.user)
     if request.method == 'POST':
@@ -202,6 +204,7 @@ def reset_password_validate(request, uidb64, token):
         return redirect('login')
 
 
+@login_required(login_url='login')
 def reset_password(request):
     if request.method == 'POST':
         password = request.POST['password']
@@ -218,3 +221,31 @@ def reset_password(request):
             return redirect('login')
     else:
         return render(request, 'accounts/reset_password.html')
+
+
+@login_required(login_url='login')
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST['current_password']
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
+        user = Account.objects.get(pk=request.user.id)
+        if new_password == confirm_password:
+            success = user.check_password(current_password)
+            if success:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Your password updated successfully.')
+                return redirect('change_password')
+            else:
+                messages.error(request, 'Current password is invalid.')
+                return redirect('change_password')
+        else:
+            messages.error(request, 'Password confirmation should match.')
+            return redirect('change_password')
+    return render(request, 'accounts/change_password.html')
+
+
+@login_required(login_url='login')
+def order_details(request, order_id):
+    pass
