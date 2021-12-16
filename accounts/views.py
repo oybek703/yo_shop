@@ -2,15 +2,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from carts.models import Cart, CartItem
 from carts.views import get_cart_id
 from orders.models import Order
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UserProfileForm, AccountForm
 from django.contrib import messages, auth
-from .models import Account
+from .models import Account, UserProfile
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 import uuid
 
@@ -139,6 +139,27 @@ def my_orders(request):
         'orders': user_orders
     }
     return render(request, 'accounts/my_orders.html', context)
+
+
+def edit_profile(request):
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    if request.method == 'POST':
+        user_form = AccountForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile is updated successfully.')
+            return redirect('edit_profile')
+    else:
+        user_form = AccountForm(instance=request.user)
+        profile_form = UserProfileForm(instance=user_profile)
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'user_profile': user_profile
+    }
+    return render(request, 'accounts/edit_profile.html', context)
 
 
 def forgot_password(request):
