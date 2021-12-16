@@ -69,7 +69,6 @@ def place_order(request):
 
 def payments(request):
     body = json.loads(request.body)
-    print(body)
     order = Order.objects.get(user=request.user, is_ordered=False, order_number=body['order_number'])
     payment = Payment(
         payment_id=body['transaction_id'],
