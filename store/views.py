@@ -55,10 +55,11 @@ def product_details(request, category_slug, product_slug):
     category = get_object_or_404(Category, slug=category_slug)
     product = get_object_or_404(Product, slug=product_slug, category=category)
     is_purchased = False
-    try:
-        is_purchased = OrderProduct.objects.filter(user=request.user, product_id=product.id).exists()
-    except OrderProduct.DoesNotExist:
-        pass
+    if request.user.is_authenticated:
+        try:
+            is_purchased = OrderProduct.objects.filter(user=request.user, product_id=product.id).exists()
+        except OrderProduct.DoesNotExist:
+            pass
     reviews = Review.objects.filter(product_id=product.id)
     context = {
         'product': product,
