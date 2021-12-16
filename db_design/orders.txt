@@ -1,0 +1,41 @@
+Payment
+ - user
+ - payment_method
+ - paid_amount
+ - status
+ - created_at
+
+Order
+ - user
+ - payment
+ - order_number
+ - first_name
+ - last_name
+ - phone_number
+ - email
+ - address_line_1
+ - address_line_2
+ - country
+ - state
+ - city
+ - total
+ - tax
+ - status(Dropdown => (New, Accepted, Completed, Cancelled))
+ - ip
+ - order_note
+ - is_ordered
+ - created_at
+ - updated_at
+
+OrderProduct
+ - order
+ - payment
+ - user
+ - product
+ - variation
+ - quantity
+ - product_price
+ - is_ordered
+ - created_at
+ - updated_at
+
