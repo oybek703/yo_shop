@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from orders.models import OrderProduct
 from store.forms import ReviewForm
-from store.models import Product, Review
+from store.models import Product, Review, ProductGallery
 from category.models import Category
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
@@ -61,10 +61,12 @@ def product_details(request, category_slug, product_slug):
         except OrderProduct.DoesNotExist:
             pass
     reviews = Review.objects.filter(product_id=product.id)
+    product_gallery = ProductGallery.objects.filter(product=product)
     context = {
         'product': product,
         'is_purchased': is_purchased,
-        'reviews': reviews
+        'reviews': reviews,
+        'product_gallery': product_gallery
     }
     return render(request, 'store/product_details.html', context)
 

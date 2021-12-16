@@ -19,4 +19,12 @@
             </section>
         </div><!-- //container -->
 </footer>
+<script>
+    $(document).ready(function () {
+        $('.thumb a').click(function (event) {
+            event.preventDefault()
+            $(' .mainImage img').attr('src', $(this).attr('href'))
+        })
+    })
+</script>
 <!-- ========================= FOOTER END // ========================= -->

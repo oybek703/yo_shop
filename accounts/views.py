@@ -135,15 +135,17 @@ def activate(request, uidb64, token):
 @login_required(login_url='login')
 def dashboard(request):
     orders_count = Order.objects.filter(user=request.user, is_ordered=True).count()
+    user_profile = UserProfile.objects.get(user_id=request.user.id)
     context = {
-        'orders_count': orders_count
+        'orders_count': orders_count,
+        'user_profile': user_profile
     }
     return render(request, 'accounts/dashboard.html', context)
 
 
 @login_required(login_url='login')
 def my_orders(request):
-    user_orders = Order.objects.filter(user=request.user, is_ordered=True)
+    user_orders = Order.objects.order_by('-created_at').filter(user=request.user, is_ordered=True)
     context = {
         'orders': user_orders
     }
