@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from carts.models import Cart, CartItem
 from carts.views import get_cart_id
+from orders.models import Order
 from .forms import RegistrationForm
 from django.contrib import messages, auth
 from .models import Account
@@ -125,7 +126,19 @@ def activate(request, uidb64, token):
 
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    orders_count = Order.objects.filter(user=request.user, is_ordered=True).count()
+    context = {
+        'orders_count': orders_count
+    }
+    return render(request, 'accounts/dashboard.html', context)
+
+
+def my_orders(request):
+    user_orders = Order.objects.filter(user=request.user, is_ordered=True)
+    context = {
+        'orders': user_orders
+    }
+    return render(request, 'accounts/my_orders.html', context)
 
 
 def forgot_password(request):
