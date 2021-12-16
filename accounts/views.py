@@ -35,6 +35,14 @@ def register(request):
             )
             user.phone_number = phone_number
             user.save()
+
+            # Create User Profile
+            user_profile = UserProfile()
+            user_profile.user_id = user.id
+            user_profile.profile_picture = 'default/default-user.png'
+            user_profile.save()
+
+            # User Activation
             current_site = get_current_site(request)
             mail_subject = 'Verify email address.'
             message = render_to_string('accounts/email_verification.html', {
