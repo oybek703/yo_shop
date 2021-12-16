@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from carts.models import Cart, CartItem
 from carts.views import get_cart_id
-from orders.models import Order
+from orders.models import Order, OrderProduct
 from .forms import RegistrationForm, UserProfileForm, AccountForm
 from django.contrib import messages, auth
 from .models import Account, UserProfile
@@ -247,5 +247,25 @@ def change_password(request):
 
 
 @login_required(login_url='login')
-def order_details(request, order_id):
-    pass
+def order_details(request, order_number):
+    order_products = OrderProduct.objects.filter(order__order_number=order_number)
+    order = Order.objects.get(order_number=order_number)
+    total = 0
+    for order_product in order_products:
+        total += order_product.product_price*order_product.product_quantity
+    total_with_tax = round(total + order.tax, 2)
+    context = {
+        'order_products': order_products,
+        'order': order,
+        'total': total,
+        'total_with_tax': total_with_tax
+    }
+    return render(request, 'accounts/order_details.html', context)
+
+
+
+
+
+
+
+

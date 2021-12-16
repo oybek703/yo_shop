@@ -32,7 +32,7 @@
                                         {% for order in orders %}
                                             <tr>
                                                 <th scope="row">
-                                                    <a href="#">
+                                                    <a href="{% url 'order_details' order.order_number %}">
                                                         {{ order.order_number }}
                                                     </a>
                                                 </th>
