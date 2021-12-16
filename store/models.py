@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Avg, Count
+from accounts.models import Account
 from category.models import Category
 from django.urls import reverse
 
@@ -17,6 +19,20 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['id']
+
+    def average_review(self):
+        reviews = Review.objects.filter(product=self, status=True).aggregate(average=Avg('rating'))
+        average = 0
+        if reviews['average'] is not None:
+            average = reviews['average']
+        return average
+
+    def review_count(self):
+        reviews = Review.objects.filter(product=self, status=True).aggregate(count=Count('id'))
+        count = 0
+        if reviews['count'] is not None:
+            count = int(reviews['count'])
+        return count
 
     def get_url(self):
         return reverse('product_details', args=[self.category.slug, self.slug])
@@ -50,3 +66,18 @@ class Variation(models.Model):
 
     def __str__(self):
         return self.value
+
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=32, blank=True)
+    review = models.CharField(max_length=128, blank=True)
+    rating = models.FloatField()
+    ip = models.CharField(max_length=32)
+    status = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.subject
