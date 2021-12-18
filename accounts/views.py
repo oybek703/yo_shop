@@ -214,7 +214,6 @@ def reset_password_validate(request, uidb64, token):
         return redirect('login')
 
 
-@login_required(login_url='login')
 def reset_password(request):
     if request.method == 'POST':
         password = request.POST['password']
