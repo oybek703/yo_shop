@@ -1,0 +1,97 @@
+Deployment to AWS Elastic Beanstalk with Postgres database:
+1. Create postgres database with "new security group" appropriately.
+2. Allow public connect and connect everywhere for postgres database in aws console.
+3. Add Postgres credentials to django settings.py file.
+4. Make migrations: python manage.py makemigrations
+5. Migrate: python manage.py migrate
+6. Create super user.
+
+Make ngnix serve static files instead of django:
+1. Add static-files.config with this content to .ebextensions folder(with exact same spaces):
+    option_settings:
+      aws:elasticbeanstalk:environment:proxy:staticfiles:
+        /static: staticfiles
+        /files: media
+2. Upload and deploy project.
+
+Make serving static files from S3 Bucket:
+1. Create new S3 bucket:
+     a. Choose unique bucket name
+     b. Uncheck Block all public access
+     c. Go to Properties and on Static Website part enable host static website
+     d. Go to Permissions and add CORS policy like this:
+        [
+            {
+                "AllowedHeaders": [
+                    "*"
+                ],
+                "AllowedMethods": [
+                    "GET"
+                ],
+                "AllowedOrigins": [
+                    "*"
+                ],
+                "ExposeHeaders": []
+            }
+        ]
+     e. In Permissions edit bucket policy for explicitly enabling public access like this:
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "PublicReadGetObject",
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": "s3:GetObject",
+                    "Resource": "arn:aws:s3:::<bucket-name(ex. yoriqulov-blog-bucket)>/*"
+                }
+            ]
+        }
+2. Grant access to django app from IAM:
+    a. Create Group with s3fu(s3 full access check).
+    b. Then add user which you will add to that group with Access Type: Programmatic Access and
+    add this user to created group for this bucket(in 2.a).
+    c. Then download credentials and save them for using in django.
+3. Install two new packages django-storages and boto3 and pip freeze > requirements.txt
+and add storages to INSTALLED_APPS
+4. And add these variables to settings.py file:
+    # AWS static files config
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME') # bucket-name
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME') # bucket region-name
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID') # access-id
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY') # access-key
+
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+5. Then collect static for upload:
+    a. python manage.py collectstatic
+    b. Check dev server: python manage.py runserver --nostatic
+
+6. For serving static and media files from specific
+    folders ("static" for static files, "media" for media files):
+    a. create custom_storages.py in the root of project
+    b. and create two classes there:
+        from django.conf import settings
+        from storages.backends.s3boto3 import S3Boto3Storage
+
+
+        class StaticFilesStorage(S3Boto3Storage):
+            location = settings.STATICFILES_FOLDER
+
+
+        class MediaFilesStorage(S3Boto3Storage):
+            location = settings.MEDIAFILES_FOLDER
+    c. add this configuration settings to settins.py file:
+        # For collectstatic and serve static files from S3 bucket
+        # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+        # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+        # For serving static files in aws s3 from specific named folders
+        STATICFILES_FOLDER = 'static'
+        MEDIAFILES_FOLDER = 'media'
+
+
+        STATICFILES_STORAGE = 'custom_storages.StaticFilesStorage'
+        DEFAULT_FILE_STORAGE = 'custom_storages.MediaFilesStorage'
